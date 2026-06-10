@@ -5,11 +5,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = $_POST['name'];
     $course = $_POST['course'];
     $year = $_POST['year'];
-    
-    $sql = "INSERT INTO students (name, course, year) VALUES ('$name', '$course', '$year')";
-    $conn->query($sql);
-    
-    echo "Student added!";
+
+    $stmt = $conn->prepare("INSERT INTO students (name, course, year) VALUES (?, ?, ?)");
+    $stmt->bind_param("ssi", $name, $course, $year);
+    $stmt->execute();
+    $stmt->close();
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit();
 }
 
 $sql = "SELECT * FROM students";
@@ -18,38 +21,51 @@ $result = $conn->query($sql);
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Student List</title>
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
+    <p>
+        <a href="add.php" style="
+ display: inline-block;
+ padding: 10px 20px;
+ background: #4CAF50;
+ color: white;
+ text-decoration: none;
+ border-radius: 4px;
+ ">+ Add Student</a>
+    </p>
+    <table>
+        <br>
 
-    <h2>Add New Student</h2>
-    <form method="POST">
-        <input type="text" name="name" placeholder="Name" required>
-        <input type="text" name="course" placeholder="Course" required>
-        <input type="number" name="year" placeholder="Year" required>
-        <button type="submit">Add Student</button>
-    </form>
-
-    <br>
-
-    <h2>Registered Students</h2>
-    <table border="1">
+        <h2>NPA ENLISTMENT</h2>
         <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Course</th>
             <th>Year</th>
+            <th>Date Added</th>
+            <th>email</th>
+            <th>phone</th>
+            <th>address</th>
+
         </tr>
         <?php while ($row = $result->fetch_assoc()): ?>
-        <tr>
-            <td><?= $row['id'] ?></td>
-            <td><?= $row['name'] ?></td>
-            <td><?= $row['course'] ?></td>
-            <td><?= $row['year'] ?></td>
-        </tr>
+            <tr>
+                <td><?= htmlspecialchars($row['id']) ?></td>
+                <td><?= htmlspecialchars($row['name']) ?></td>
+                <td><?= htmlspecialchars($row['course']) ?></td>
+                <td><?= htmlspecialchars($row['year']) ?></td>
+                <td><?= htmlspecialchars($row['Date_Added']) ?></td>
+                <td><?= htmlspecialchars($row['email']) ?></td>
+                <td><?= htmlspecialchars($row['phone']) ?></td>
+                <td><?= htmlspecialchars($row['address']) ?></td>
+            </tr>
         <?php endwhile; ?>
     </table>
-
 </body>
+
 </html>
